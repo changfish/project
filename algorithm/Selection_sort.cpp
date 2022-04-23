@@ -25,5 +25,5 @@ void sort(int *A,int K){
 		A[i]=t;
 	}
 }
-	
+	 
 
