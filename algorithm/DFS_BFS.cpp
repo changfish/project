@@ -84,4 +84,4 @@ void add_node(link h,int val){
 		if(!(ptr->val==val))
 			ptr->next=newnode;
 	}
-}
+} 
