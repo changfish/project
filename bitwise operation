@@ -1,0 +1,32 @@
+#include <iostream>
+using namespace std;
+
+typedef long long ll;
+
+int main(){
+	//switch
+	int a = 3 , b= 7;
+	a = a ^ b;
+	b = a ^ b;
+	a = a ^ b;
+	cout<<a<<' '<<b<<endl;  //7 3
+	
+	//shift(*/2)
+	a = 1 << 1;
+	cout<<a<<endl; //2
+	a = a << 2;
+	cout<<a<<endl; //8  	
+	a = a >> 1;
+	cout<<a<<endl; //4
+	
+	//odd?
+	a = 5;
+	cout<< (a&1) <<endl; //1
+	a=101;
+	cout<< (a&1) <<endl; //1
+	a=6;
+	cout<< (a&1) <<endl; //0
+	a=102;
+	cout<< (a&1) <<endl; //0
+	 
+}
