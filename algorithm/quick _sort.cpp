@@ -23,8 +23,7 @@ void sort(int l,int r){
 		A[l]=t;
 		sort(l,j-1);
 		sort(j+1,r);
-	}
-	
+	}	
 }
 
 int main(){
