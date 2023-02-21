@@ -1,2 +1,5 @@
-###record some web skill for noob
- = P
+# for noob
+## side project
+### undergraduate
+- langugage: HTML/CSS/JS/PHP/SQL...
+- topic: web
