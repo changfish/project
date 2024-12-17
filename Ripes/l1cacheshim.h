@@ -1,17 +1,13 @@
 #pragma once
 
 #include <QObject>
+#include <memory> // 引入 shared_ptr
 
 #include "cachesim.h"
+#include "l2cachesim.h" // 新增 L2 Cache 頭文件
 
 #include "VSRTL/core/vsrtl_memory.h"
 #include "isa/isa_types.h"
-#include "l2cachesim.h"
-
-private:
-  std::shared_ptr<L2CacheSim> m_l2Cache; // 新增 L2 cache 成員
-
-
 
 namespace Ripes {
 
@@ -41,6 +37,9 @@ private:
    * the given type of the memory.
    */
   CacheType m_type;
+
+  // 新增 L2 Cache 成員
+  std::shared_ptr<L2CacheSim> m_l2Cache;
 };
 
 } // namespace Ripes
