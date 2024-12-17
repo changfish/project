@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QObject>
-
 #include "cachesim.h"
+#include "l2cachesim.h"
+#include "l3cachesim.h"  // 新增這行導入 L3CacheSim
+
 
 #include "VSRTL/core/vsrtl_memory.h"
 #include "isa/isa_types.h"
