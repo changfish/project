@@ -1,5 +1,5 @@
 #pragma once
-
+#include <unordered_set>
 #include "cachesim.h"
 
 namespace Ripes {
