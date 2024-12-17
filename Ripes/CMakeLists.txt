@@ -1,0 +1,9 @@
+create_ripes_lib(cachesim
+    LINK_TO_RIPES_LIB
+    SOURCES
+        l1cacheshim.cpp
+        l2cachesim.cpp
+    HEADERS
+        l1cacheshim.h
+        l2cachesim.h
+)
