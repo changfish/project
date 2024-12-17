@@ -1,5 +1,5 @@
 #include <stdio.h>
-#define N 256  // 矩陣大小，可調整
+#define N 8  // 矩陣大小，可調整
 
 int A[N][N], B[N][N], C[N][N];
 
