@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QObject>
-#include <memory> // 引入 shared_ptr
+#include <memory> // 使用 shared_ptr 需要這個標頭檔案
 
 #include "cachesim.h"
-#include "l2cachesim.h" // 新增 L2 Cache 頭文件
+#include "l2cachesim.h" // 引入 L2 Cache 頭檔案
 
 #include "VSRTL/core/vsrtl_memory.h"
 #include "isa/isa_types.h"
@@ -30,12 +30,6 @@ private:
   void processorWasClocked();
   void processorReversed();
 
-  /**
-   * @brief m_memory
-   * The cache simulator may be attached to either a ROM or a Read/Write memory
-   * element. Accessing the underlying VSRTL component signals are dependent on
-   * the given type of the memory.
-   */
   CacheType m_type;
 
   // 新增 L2 Cache 成員
