@@ -4,18 +4,13 @@
 #include <memory> // 使用 shared_ptr 需要這個標頭檔案
 
 #include "cachesim.h"
-#include "l2cachesim.h" // 引入 L2 Cache 頭檔案
+#include "l2cachesim.h"
 
 #include "VSRTL/core/vsrtl_memory.h"
 #include "isa/isa_types.h"
 
 namespace Ripes {
 
-/**
- * @brief The CacheShim class
- * Provides a wrapper around the current processor models' data- and instruction
- * memories, to be used in the cache simulator interface.
- */
 class L1CacheShim : public CacheInterface {
   Q_OBJECT
 public:
@@ -30,10 +25,11 @@ private:
   void processorWasClocked();
   void processorReversed();
 
+  void handleL1Access(AInt address, MemoryAccess::Type type); // 新增函數宣告
+
   CacheType m_type;
 
-  // 新增 L2 Cache 成員
-  std::shared_ptr<L2CacheSim> m_l2Cache;
+  std::shared_ptr<L2CacheSim> m_l2Cache; // 新增 L2 Cache 成員
 };
 
 } // namespace Ripes
