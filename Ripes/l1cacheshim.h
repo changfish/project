@@ -1,12 +1,11 @@
 #pragma once
 
 #include <QObject>
+#include "VSRTL/core/vsrtl_memory.h"
 
 #include "cachesim.h"
 #include "l2cacheshim.h"
 #include "processorhandler.h"
-#include "VSRTL/core/vsrtl_memory.h"
-#include "isa/isa_types.h"
 #include "isa/isa_types.h" // 包含 MemoryAccess 定义
 
 namespace Ripes {
