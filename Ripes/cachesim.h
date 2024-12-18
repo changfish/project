@@ -184,6 +184,12 @@ public:
   unsigned getWritebacks() const;
   CacheSize getCacheSize() const;
 
+  static double getCombinedHitRate(const CacheSim& l1, const CacheSim& l2) {
+    unsigned totalHits = l1.getHits() + l2.getHits();
+    unsigned totalAccesses = (l1.getHits() + l1.getMisses()) + (l2.getHits() + l2.getMisses());
+    return totalAccesses == 0 ? 0.0 : static_cast<double>(totalHits) / totalAccesses;
+  }
+
   AInt buildAddress(unsigned tag, unsigned lineIdx, unsigned blockIdx) const;
 
   int getBlockBits() const { return m_blocks; }
