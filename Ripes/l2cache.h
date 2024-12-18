@@ -26,4 +26,4 @@ private:
   std::unordered_map<AInt, MemoryAccess::Type> cacheEntries;
 };
 
-} // namespace Ripes
+} // namespace Ripes 
