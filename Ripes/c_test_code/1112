@@ -1,0 +1,40 @@
+#include <stdio.h>
+
+#define DATA_SIZE 512      // Total data size (number of elements)
+#define NUM_ACCESSES 5000  // Number of memory accesses
+#define STRIDE 8           // Access stride to influence cache behavior
+
+int data[DATA_SIZE];
+
+void initializeData() {
+    for (int i = 0; i < DATA_SIZE; i++) {
+        data[i] = i; // Initialize data with deterministic values
+    }
+}
+
+int singleCacheTest() {
+    int sum = 0;
+    for (int i = 0; i < NUM_ACCESSES; i++) {
+        int index = (i * STRIDE) % DATA_SIZE;
+        sum += data[index];
+    }
+    return sum;
+}
+
+int multiCacheTest() {
+    int sum = 0;
+    for (int i = 0; i < NUM_ACCESSES; i++) {
+        int index = (i * STRIDE + (i / STRIDE)) % DATA_SIZE;
+        sum += data[index];
+    }
+    return sum;
+}
+
+int main() {
+    initializeData();
+
+    int singleSum = singleCacheTest();
+    int multiSum = multiCacheTest();
+
+    return 0;
+}
