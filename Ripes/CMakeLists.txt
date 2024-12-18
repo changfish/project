@@ -1,13 +1,11 @@
-# 增加新的檔案
-set(CACHE_SIM_SOURCES
-    l1cacheshim.cpp
-    l2cache.cpp # 新增 L2Cache 的檔案
-)
+cmake_minimum_required(VERSION 3.10)
 
-set(CACHE_SIM_HEADERS
-    l1cacheshim.h
-    l2cache.h # 新增 L2Cache 的檔案
-)
+project(CacheSim)
 
-# 創建 Ripes 的 library 並加入新的檔案
-create_ripes_lib(cachesim LINK_TO_RIPES_LIB SOURCES ${CACHE_SIM_SOURCES} HEADERS ${CACHE_SIM_HEADERS})
+set(CMAKE_CXX_STANDARD 14)
+
+add_library(cachesim_lib L1CacheShim.cpp L2Cache.cpp)
+
+target_include_directories(cachesim_lib PUBLIC ${CMAKE_SOURCE_DIR}/src)
+
+create_ripes_lib(cachesim LINK_TO_RIPES_LIB)
