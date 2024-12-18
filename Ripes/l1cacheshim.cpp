@@ -37,7 +37,7 @@ void L1CacheShim::processorWasClocked() {
     const auto dataAccess = ProcessorHandler::getProcessor()->dataMemAccess();
 
     if (dataAccess.type == MemoryAccess::Write || dataAccess.type == MemoryAccess::Read) {
-      if (!m_nextLevelCache->access(dataAccess.address, dataAccess.type)) {
+      if (!m_nextLevelCache || !m_nextLevelCache->access(dataAccess.address, dataAccess.type)) {
         if (m_l2Cache) {
           m_l2Cache->access(dataAccess.address, dataAccess.type);
         }
@@ -46,7 +46,7 @@ void L1CacheShim::processorWasClocked() {
   } else {
     const auto instrAccess = ProcessorHandler::getProcessor()->instrMemAccess();
     if (instrAccess.type == MemoryAccess::Read) {
-      if (!m_nextLevelCache->access(instrAccess.address, MemoryAccess::Read)) {
+      if (!m_nextLevelCache || !m_nextLevelCache->access(instrAccess.address, MemoryAccess::Read)) {
         if (m_l2Cache) {
           m_l2Cache->access(instrAccess.address, MemoryAccess::Read);
         }
