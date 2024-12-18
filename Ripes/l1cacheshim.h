@@ -1,19 +1,13 @@
 #pragma once
 
 #include <QObject>
-#include "cachesim.h"
-#include "l2cache.h" // import L2Cache
+#include <memory>
 
-#include "VSRTL/core/vsrtl_memory.h"
-#include "isa/isa_types.h"
+#include "cachesim.h"
+#include "l2cacheshim.h"
 
 namespace Ripes {
 
-/**
- * @brief The L1CacheShim class
- * Provides a wrapper around the current processor models' data- and instruction
- * memories, to be used in the cache simulator interface.
- */
 class L1CacheShim : public CacheInterface {
   Q_OBJECT
 public:
@@ -21,15 +15,18 @@ public:
   L1CacheShim(CacheType type, QObject *parent);
   void access(AInt address, MemoryAccess::Type type) override;
 
+  void setType(CacheType type);
+  void setL2Cache(const std::shared_ptr<L2CacheShim>& cache) {
+    m_l2Cache = cache;
+  }
+
 private:
   void processorReset();
   void processorWasClocked();
   void processorReversed();
 
   CacheType m_type;
-
-  // Internal L2Cache instance
-  std::unique_ptr<L2Cache> m_l2Cache;
+  std::shared_ptr<L2CacheShim> m_l2Cache;
 };
 
 } // namespace Ripes
