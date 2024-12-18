@@ -9,7 +9,7 @@ class L2CacheShim : public CacheSim {
 public:
   L2CacheShim(QObject *parent = nullptr) : CacheSim(parent) {}
   void access(AInt address, MemoryAccess::Type type) override {
-    CacheSim::access(address, type); // 繼承並使用 CacheSim 的邏輯
+    CacheSim::access(address, type);
   }
 };
 
