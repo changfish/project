@@ -181,11 +181,163 @@ public:
   double getHitRate() const;
   unsigned getHits() const;
   unsigned getMisses() const;
+  unsigned getWritebacks() const;
+  CacheSize getCacheSize() const;
 
-  static double getCombinedHitRate(const CacheSim &l1, const CacheSim &l2);
+  AInt buildAddress(unsigned tag, unsigned lineIdx, unsigned blockIdx) const;
+
+  int getBlockBits() const { return m_blocks; }
+  int getWaysBits() const { return m_ways; }
+  int getLineBits() const { return m_lines; }
+  int getTagBits() const {
+    return 32 - 2 /*byte offset*/ - getBlockBits() - getLineBits();
+  }
+
+  int getBlocks() const { return static_cast<int>(std::pow(2, m_blocks)); }
+  int getWays() const { return static_cast<int>(std::pow(2, m_ways)); }
+  int getLines() const { return static_cast<int>(std::pow(2, m_lines)); }
+  unsigned getBlockMask() const { return m_blockMask; }
+  unsigned getTagMask() const { return m_tagMask; }
+  unsigned getLineMask() const { return m_lineMask; }
+
+  unsigned getLineIdx(const AInt address) const;
+  unsigned getBlockIdx(const AInt address) const;
+  unsigned getTag(const AInt address) const;
+
+  const CacheLine *getLine(unsigned idx) const;
+
+public slots:
+  void setBlocks(unsigned blocks);
+  void setLines(unsigned lines);
+  void setWays(unsigned ways);
+  void setPreset(const Ripes::CachePreset &preset);
+
+  /**
+   * @brief reverse
+   * Slot functions for Reversed signals emitted by the currently attached
+   * processor.
+   */
+  void reverse() override;
+
+signals:
+  void configurationChanged();
+  void dataChanged(CacheSim::CacheTransaction transaction);
+  void hitrateChanged();
+
+  // Signals that the entire cache line @p
+  /**
+   * @brief wayInvalidated
+   * Signals that all ways in the cacheline @param lineIdx which contains way
+   * @param wayIdx should be invalidated in the graphical view.
+   */
+  void wayInvalidated(unsigned lineIdx, unsigned wayIdx);
+
+  /**
+   * @brief cacheInvalidated
+   * Signals that all cachelines in the cache should be invalidated in the
+   * graphical view
+   */
+  void cacheInvalidated();
 
 private:
+  struct CacheTrace {
+    CacheTransaction transaction;
+    CacheWay oldWay;
+  };
+
+  std::pair<unsigned, CacheSim::CacheWay *>
+  locateEvictionWay(const CacheTransaction &transaction);
+  CacheWay evictAndUpdate(CacheTransaction &transaction);
+  void analyzeCacheAccess(CacheTransaction &transaction) const;
+  void pushAccessTrace(const CacheTransaction &transaction);
+  void popAccessTrace();
+
+  /**
+   * @brief updateConfiguration
+   * Called whenever one of the cache parameters changes. Emits signal
+   * configurationChanged after updating.
+   */
+  void updateConfiguration();
+  void recalculateMasks();
+
+  /**
+   * @brief reassociateMemory
+   * Binds to a memory component exposed by the processor handler, based on the
+   * current cache type.
+   */
+  void reassociateMemory();
+
+  ReplPolicy m_replPolicy = ReplPolicy::LRU;
+  WritePolicy m_wrPolicy = WritePolicy::WriteBack;
+  WriteAllocPolicy m_wrAllocPolicy = WriteAllocPolicy::WriteAllocate;
+
+  unsigned m_blockMask = -1;
+  unsigned m_lineMask = -1;
+  unsigned m_tagMask = -1;
+
+  int m_blocks = 2;           // Some power of 2
+  int m_lines = 5;            // Some power of 2
+  int m_ways = 0;             // Some power of 2
+  unsigned m_byteOffset = -1; // # of bits to represent the # of bytes in a word
+  unsigned m_wordBits = -1;
+
+  /**
+   * @brief m_cacheLines
+   * The datastructure for storing our cache hierachy, as per the current cache
+   * configuration.
+   */
+  std::map<unsigned, CacheLine> m_cacheLines;
+
+  void updateCacheLineReplFields(CacheLine &line, unsigned wayIdx);
+  /**
+   * @brief revertCacheLineReplFields
+   * Called whenever undoing a transaction to the cache. Reverts a cacheline's
+   * replacement fields according to the configured replacement policy.
+   */
+  void revertCacheLineReplFields(CacheLine &line, const CacheWay &oldWay,
+                                 unsigned wayIdx);
+
+  /**
+   * @brief m_accessTrace
+   * The access trace stack contains cache access statistics for each simulation
+   * cycle. Contrary to the TraceStack (m_traceStack).
+   */
   std::map<unsigned, CacheAccessTrace> m_accessTrace;
+
+  /**
+   * @brief m_traceStack
+   * The following information is used to track all most-recent modifications
+   * made to the stack. The stack is of a fixed sized which is equal to the undo
+   * stack of VSRTL memory elements. Storing all modifications allows us to
+   * rollback any changes performed to the cache, when clock cycles are undone.
+   */
+  std::deque<CacheTrace> m_traceStack;
+
+  /**
+   * @brief m_isResetting
+   * The cacheSim can be reset by either internally modyfing cache configuration
+   * parameters or externally through a processor reset. Given that modifying
+   * the cache parameters itself will prompt a reset of the processor, we need a
+   * way to distinquish whether a processor reset request originated from an
+   * internal cache configuration change. If so, we do not emit a processor
+   * request signal, avoiding a signalling loop.
+   */
+  bool m_isResetting = false;
+
+  CacheTrace popTrace();
+  void pushTrace(const CacheTrace &trace);
 };
 
+const static std::map<ReplPolicy, QString> s_cacheReplPolicyStrings{
+    {ReplPolicy::Random, "Random"}, {ReplPolicy::LRU, "LRU"}};
+const static std::map<WriteAllocPolicy, QString> s_cacheWriteAllocateStrings{
+    {WriteAllocPolicy::WriteAllocate, "Write allocate"},
+    {WriteAllocPolicy::NoWriteAllocate, "No write allocate"}};
+
+const static std::map<WritePolicy, QString> s_cacheWritePolicyStrings{
+    {WritePolicy::WriteThrough, "Write-through"},
+    {WritePolicy::WriteBack, "Write-back"}};
+
 } // namespace Ripes
+
+Q_DECLARE_METATYPE(Ripes::CacheSim::CacheTransaction);
