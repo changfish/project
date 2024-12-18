@@ -1,8 +1,7 @@
 #include "l1cacheshim.h"
 #include "processorhandler.h"
-  
-namespace Ripes { 
 
+namespace Ripes {
 
 L1CacheShim::L1CacheShim(CacheType type, QObject *parent)
     : CacheInterface(parent), m_type(type) {
@@ -38,19 +37,24 @@ void L1CacheShim::processorWasClocked() {
     const auto dataAccess = ProcessorHandler::getProcessor()->dataMemAccess();
 
     if (dataAccess.type == MemoryAccess::Write || dataAccess.type == MemoryAccess::Read) {
-      if (!m_nextLevelCache || !m_nextLevelCache->access(dataAccess.address, dataAccess.type)) {
-        if (m_l2Cache) {
-          m_l2Cache->access(dataAccess.address, dataAccess.type);
-        }
+      // 首先访问 L1 缓存（m_nextLevelCache）
+      m_nextLevelCache->access(dataAccess.address, dataAccess.type);
+
+      // 在 L1 缓存处理后，将访问请求发送到 L2 缓存
+      if (m_l2Cache) {
+        m_l2Cache->access(dataAccess.address, dataAccess.type);
       }
     }
   } else {
     const auto instrAccess = ProcessorHandler::getProcessor()->instrMemAccess();
+
     if (instrAccess.type == MemoryAccess::Read) {
-      if (!m_nextLevelCache || !m_nextLevelCache->access(instrAccess.address, MemoryAccess::Read)) {
-        if (m_l2Cache) {
-          m_l2Cache->access(instrAccess.address, MemoryAccess::Read);
-        }
+      // 首先访问 L1 缓存
+      m_nextLevelCache->access(instrAccess.address, MemoryAccess::Read);
+
+      // 在 L1 缓存处理后，将访问请求发送到 L2 缓存
+      if (m_l2Cache) {
+        m_l2Cache->access(instrAccess.address, MemoryAccess::Read);
       }
     }
   }
