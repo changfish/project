@@ -2,7 +2,6 @@
 
 #include <QObject>
 #include "cachesim.h"
-#include "l2cache.h" // 引入 L2Cache
 
 #include "VSRTL/core/vsrtl_memory.h"
 #include "isa/isa_types.h"
@@ -28,8 +27,8 @@ private:
 
   CacheType m_type;
 
-  // Internal L2Cache instance
-  std::unique_ptr<L2Cache> m_l2Cache;
+  bool isHit(AInt address);       // 新增判斷是否命中函式
+  void updateStats(bool hit);     // 新增更新統計資訊函式
 };
 
 } // namespace Ripes
