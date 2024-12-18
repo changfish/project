@@ -7,5 +7,3 @@ void L2CacheShim::access(AInt address, MemoryAccess::Type type) {
 }
 
 } // namespace Ripes
-
-// l1cacheshim.h
