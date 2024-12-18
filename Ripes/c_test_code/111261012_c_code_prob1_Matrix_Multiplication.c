@@ -1,5 +1,5 @@
 #include <stdio.h>
-#define N 8
+#define N 4
 
 int A[N][N], B[N][N], C[N][N];
 
