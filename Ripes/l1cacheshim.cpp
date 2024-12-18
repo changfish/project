@@ -1,7 +1,8 @@
 #include "l1cacheshim.h"
 #include "processorhandler.h"
+  
+namespace Ripes { 
 
-namespace Ripes {
 
 L1CacheShim::L1CacheShim(CacheType type, QObject *parent)
     : CacheInterface(parent), m_type(type) {
