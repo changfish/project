@@ -2,20 +2,24 @@
 
 namespace Ripes {
 
-L2Cache::L2Cache(QObject *parent) : CacheInterface(parent) {}
+L2Cache::L2Cache() {}
 
-void L2Cache::access(AInt address, MemoryAccess::Type type) {
-  if (isHit(address)) {
-    updateStats(true); // Update L2 hit statistics
-  } else {
-    updateStats(false); // Update L2 miss statistics
-    // No further level of cache; treat as memory access.
-  }
-}
+L2Cache::~L2Cache() {}
 
 bool L2Cache::isHit(AInt address) {
-  // Simulate a hit/miss decision (replace with actual logic)
-  return false; // TODO: Implement L2 cache hit logic
+  return cacheEntries.find(address) != cacheEntries.end();
+}
+
+void L2Cache::access(AInt address, MemoryAccess::Type type) {
+  cacheEntries[address] = type;
+}
+
+void L2Cache::reset() {
+  cacheEntries.clear();
+}
+
+void L2Cache::reverse() {
+  // Reverse operation for L2 cache if needed.
 }
 
 } // namespace Ripes
