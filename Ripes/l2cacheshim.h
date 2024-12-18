@@ -6,7 +6,7 @@ namespace Ripes {
 
 class L2CacheShim : public CacheSim {
   Q_OBJECT
-public:
+public: 
   L2CacheShim(QObject *parent = nullptr) : CacheSim(parent) {}
 
   void access(AInt address, MemoryAccess::Type type) override {
