@@ -1,11 +1,23 @@
+# Project-specific configurations
 cmake_minimum_required(VERSION 3.10)
 
-project(CacheSim)
+# Project name and setup
+project(Ripes CACHE CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+# Remove old library definition if exists
+if(TARGET cachesim_lib)
+    message(STATUS "Removing old cachesim_lib target")
+    remove_library(cachesim_lib)
+endif()
 
-add_library(cachesim_lib L1CacheShim.cpp L2Cache.cpp)
+# Create a new library with the correct name
+create_ripes_lib(cachesim cachesim_lib_new LINK_TO_RIPES_LIB)
 
-target_include_directories(cachesim_lib PUBLIC ${CMAKE_SOURCE_DIR}/src)
+# Add additional configuration, if needed
+target_sources(cachesim_lib_new PRIVATE
+    src/cachesim/l1cacheshim.cpp
+    src/cachesim/l2cache.cpp
+)
 
-create_ripes_lib(cachesim LINK_TO_RIPES_LIB)
+# Ensure Ripes library dependencies are linked
+target_link_libraries(cachesim_lib_new Ripes)
