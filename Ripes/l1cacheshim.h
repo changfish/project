@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include "cachesim.h"
-#include "l2cache.h" // 引入 L2Cache
+#include "l2cache.h" // import L2Cache
 
 #include "VSRTL/core/vsrtl_memory.h"
 #include "isa/isa_types.h"
