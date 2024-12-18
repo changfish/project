@@ -1,19 +1,15 @@
 #pragma once
 
 #include <QObject>
+#include "VSRTL/core/vsrtl_memory.h"
 
 #include "cachesim.h"
-
-#include "VSRTL/core/vsrtl_memory.h"
+#include "l2cacheshim.h"
+#include "processorhandler.h"
 #include "isa/isa_types.h"
 
 namespace Ripes {
 
-/**
- * @brief The CacheShim class
- * Provides a wrapper around the current processor models' data- and instruction
- * memories, to be used in the cache simulator interface.
- */
 class L1CacheShim : public CacheInterface {
   Q_OBJECT
 public:
@@ -22,19 +18,17 @@ public:
   void access(AInt address, MemoryAccess::Type type) override;
 
   void setType(CacheType type);
+  void setL2Cache(const std::shared_ptr<L2CacheShim>& cache) {
+    m_l2Cache = cache;
+  }
 
 private:
   void processorReset();
   void processorWasClocked();
   void processorReversed();
 
-  /**
-   * @brief m_memory
-   * The cache simulator may be attached to either a ROM or a Read/Write memory
-   * element. Accessing the underlying VSRTL component signals are dependent on
-   * the given type of the memory.
-   */
   CacheType m_type;
+  std::shared_ptr<L2CacheShim> m_l2Cache;
 };
 
 } // namespace Ripes
