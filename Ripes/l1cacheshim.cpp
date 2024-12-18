@@ -36,17 +36,26 @@ void L1CacheShim::processorReversed() {
 void L1CacheShim::processorWasClocked() {
   if (m_type == CacheType::DataCache) {
     const auto dataAccess = ProcessorHandler::getProcessor()->dataMemAccess();
-    if (dataAccess.type == MemoryAccess::Read) {
-      m_l2Cache->access(dataAccess.address, MemoryAccess::Read);
-    } else if (dataAccess.type == MemoryAccess::Write) {
-      m_l2Cache->access(dataAccess.address, MemoryAccess::Write);
+
+    if (dataAccess.type == MemoryAccess::Write || dataAccess.type == MemoryAccess::Read) {
+      if (!m_nextLevelCache->access(dataAccess.address, dataAccess.type)) {
+        // 如果在 L1 缓存未命中，则继续访问 L2 缓存
+        if (m_l2Cache) {
+          m_l2Cache->access(dataAccess.address, dataAccess.type);
+        }
+      }
     }
   } else {
     const auto instrAccess = ProcessorHandler::getProcessor()->instrMemAccess();
     if (instrAccess.type == MemoryAccess::Read) {
-      m_l2Cache->access(instrAccess.address, MemoryAccess::Read);
+      if (!m_nextLevelCache->access(instrAccess.address, MemoryAccess::Read)) {
+        if (m_l2Cache) {
+          m_l2Cache->access(instrAccess.address, MemoryAccess::Read);
+        }
+      }
     }
   }
 }
+
 
 } // namespace Ripes
