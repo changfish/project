@@ -16,8 +16,15 @@ from PyPDF2 import PdfMerger
 # from io import BytesIO
 # from fpdf import FPDF
 
-Account = "0905920491"
-Password = "Kk0905920491"
+Account = "123"
+Password = "456"
+with open("acc.txt", "r") as f:
+    for line in f:
+        if "Account" in line:
+            Account = line.split("=")[1].strip().strip('"')
+        elif "Password" in line:
+            Password = line.split("=")[1].strip().strip('"')
+
 pdf_path = os.getcwd()+"\post_pdf"
 
 prefs={'profile.default_content_settings.popups':0,'download.default_directory':pdf_path,
