@@ -10,25 +10,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from PyPDF2 import PdfMerger
 
 # from PIL import Image
 # from io import BytesIO
 # from fpdf import FPDF
 
-Account = "123"
-Password = "456"
-with open("acc.txt", "r") as f:
-    for line in f:
-        if "Account" in line:
-            Account = line.split("=")[1].strip().strip('"')
-        elif "Password" in line:
-            Password = line.split("=")[1].strip().strip('"')
+Account = "0905920491"
+Password = "Kk0905920491"
+pdf_path = os.getcwd() + r"\post_pdf"
 
-pdf_path = os.getcwd()+"\post_pdf"
-
-prefs={'profile.default_content_settings.popups':0,'download.default_directory':pdf_path,
-       "profile.default_content_setting_values.automatic_downloads":1}
+prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': pdf_path,
+         "profile.default_content_setting_values.automatic_downloads": 1}
 
 # 設定 Chrome 啟動選項
 chrome_options = Options()
@@ -45,20 +40,19 @@ S_data = [
 ]
 
 
-
 def split_address(address):
     pattern = re.compile(
-        r'(.+?[里路街段])'           # 路、街
-        r'(.*)$'                # 後續所有部分作為最後一組
+        r'(.+?[里路街段])'  # 路、街
+        r'(.*)$'  # 後續所有部分作為最後一組
     )
-    if(address[0]=="台"):
+    if (address[0] == "台"):
         address = "臺" + address[1:]
-    if(address[4]=="區"):
+    if (address[4] == "區"):
         match = pattern.match(address[5:])
-        ans = [address[0:3],address[3:5]]
+        ans = [address[0:3], address[3:5]]
     else:
         match = pattern.match(address[6:])
-        ans = [address[0:3],address[3:6]]
+        ans = [address[0:3], address[3:6]]
     if match:
         t = [group if group else '' for group in match.groups()]
         ans.append(t[0])
@@ -67,26 +61,22 @@ def split_address(address):
     return None
 
 
-
-
 input_file = "./test.xlsx"
 output_file = "./complete.xlsx"
-df = pd.read_excel(input_file,dtype=str)
+df = pd.read_excel(input_file, dtype=str)
 tem_arr = df.to_numpy()
 col_name = df.columns[3:]
 R_datas = []
-for i in range(0,len(tem_arr)):
+for i in range(0, len(tem_arr)):
     tem = []
-    for j in range(0,3):
+    for j in range(0, 3):
         tem.append(tem_arr[i][j])
     tem_str = ""
-    for j in range(0,len(col_name)):
-        if(str(tem_arr[i][j+3])!="nan"):
-            tem_str+=col_name[j]+"x"+str(tem_arr[i][j+3])+","
+    for j in range(0, len(col_name)):
+        if (str(tem_arr[i][j + 3]) != "nan"):
+            tem_str += col_name[j] + "x" + str(tem_arr[i][j + 3]) + ","
     tem.append(tem_str[:-1])
     R_datas.append(tem)
-
-
 
 url = "https://ezpost.post.gov.tw/SingleShip"
 index = 0
@@ -94,14 +84,14 @@ flag = 1
 post_info = []
 
 
-def post_data(S_data,R_data):
+def post_data(S_data, R_data):
     S_address = split_address(S_data[2])
-    if(S_address == None):
+    if (S_address == None):
         print("寄件人地址格式錯誤")
-    #重新整理 回到首頁填寫新資料
+    # 重新整理 回到首頁填寫新資料
     R_address = split_address(R_data[2])
-    if(R_address == None):
-        print("收件人地址格式錯誤,"+", ".join(R_data))
+    if (R_address == None):
+        print("收件人地址格式錯誤," + ", ".join(R_data))
     radio_button = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.ID, "mailTypeIBox"))
     )
@@ -112,7 +102,6 @@ def post_data(S_data,R_data):
     )
     driver.execute_script("arguments[0].click();", next_button)
 
-
     # 定位按鈕, 同意說明, 進入填寫寄件人資料
     submit_button = driver.find_element(By.ID, "submitButton")
     # 使用 JavaScript 移除 disabled 屬性
@@ -120,7 +109,6 @@ def post_data(S_data,R_data):
     # 強制點擊按鈕
     driver.execute_script("arguments[0].click();", submit_button)
     time.sleep(1.5)
-    
 
     ##### 寄件人資料
     # S_姓名
@@ -156,7 +144,7 @@ def post_data(S_data,R_data):
 
     ##### 收件人資料
     # R_姓名
-    name_input =WebDriverWait(driver, 10).until(
+    name_input = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "MAIL_RNAME"))
     )
     name_input.send_keys(R_data[0])
@@ -186,31 +174,33 @@ def post_data(S_data,R_data):
     # 強制點擊按鈕, 進入填寫物品資料
     submit_button = driver.find_element(By.ID, "next-button-step")
     driver.execute_script("arguments[0].click();", submit_button)
-    time.sleep(2.5)
+    time.sleep(1.5)
     ##### 物品資料
     # I_物品種類
     item_selector = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "categoryDropdown"))
     )
-    # time.sleep(0.5)
     select = Select(item_selector)
-    select.select_by_value("2") #食品
-    # size_長寬高
+    select.select_by_visible_text("食品")
+    # I_長寬高
     item_selector = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "sizeDropdown"))
     )
     select = Select(item_selector)
-    select.select_by_value("00H")   #小包裹
-    
-    submit_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_border.confirm-btn-alert"))
-    )
-    submit_button.click()
-
+    select.select_by_visible_text("小尺寸 14cm ×17cm x45cm")
+    # LEN_input = driver.find_element(By.ID, "PACK_DEPTH")
+    # LEN_input.send_keys("15")
+    # LEN_input = driver.find_element(By.ID, "PACK_WIDTH")
+    # LEN_input.send_keys("10")
+    # LEN_input = driver.find_element(By.ID, "PACK_HEIGHT")
+    # LEN_input.send_keys("10")
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, ".confirm-btn-alert"))
+    ).click()
 
     # I_contents
     text_input = driver.find_element(By.ID, "mailCommentTextarea")
-    if(R_data[3]):
+    if (R_data[3]):
         text_input.send_keys(R_data[3])
     # 強制點擊按鈕, 送出資料，並準備爬取qrcode
     submit_button = driver.find_element(By.ID, "next-button-step")
@@ -225,6 +215,7 @@ def post_data(S_data,R_data):
     send_post()
     # send_button.pack(pady=10)
 
+
 def send_post():
     submit_button = driver.find_element(By.ID, "ConfirmSendMailInfo")
     # 強制點擊按鈕, 送出資料，並準備爬取qrcode
@@ -236,8 +227,8 @@ def send_post():
     submit_button = driver.find_element(By.XPATH, "//button[@data-bs-dismiss='modal' and text()='確認寄件']")
     driver.execute_script("arguments[0].click();", submit_button)
     time.sleep(0.5)
-    global index    # to find global var
-    index+=1
+    global index  # to find global var
+    index += 1
     # send_button.pack_forget()
     # start_button.pack(pady=10)
     label.config(text="資料輸入中")
@@ -252,13 +243,11 @@ def send_post():
     re_run_post_web()
 
 
-
-
 def main_sys():
     start_button.pack_forget()
     driver.get(url)
-    global index    # to find global var
-    if(index==len(R_datas)):
+    global index  # to find global var
+    if (index == len(R_datas)):
         # 爬取寄件資料
         driver.get("https://ezpost.post.gov.tw/IBoxStatus")
         time.sleep(5)  # 等待请求完成
@@ -266,8 +255,7 @@ def main_sys():
         label.pack(pady=50)
         download_post_pdf()
         return
-    post_data(S_data,R_datas[index])
-    
+    post_data(S_data, R_datas[index])
 
 
 def download_post_pdf():
@@ -275,7 +263,7 @@ def download_post_pdf():
     if not os.path.exists(pdf_path):
         os.makedirs(pdf_path)
     tem_file_path = os.path.join(pdf_path, "tem.txt")
-    with open(tem_file_path,'w') as f:
+    with open(tem_file_path, 'w') as f:
         f.write("tem write")
     for tem_file_name in os.listdir(pdf_path):
         tem_file_path = os.path.join(pdf_path, tem_file_name)
@@ -283,33 +271,36 @@ def download_post_pdf():
             os.remove(tem_file_path)
     ##下載pdf到路徑
     ibox_url = "https://ezpost.post.gov.tw/IBoxStatus?page="
-    driver.get(ibox_url+str(1))
+    driver.get(ibox_url + str(1))
     time.sleep(1)
     ibox_info = driver.find_element(By.XPATH, "//div[@id='iboxStatusDiv']")
-    child_elements = ibox_info.find_elements(By.XPATH,"//div[@class='d-flex flex-wrap justify-content-center whie_block_border_100 ']")
-    #總共有多少頁的info
-    max_page = driver.find_element(By.XPATH, "//nav[@aria-label='Page navigation ']").find_elements(By.TAG_NAME,"li")[4].text
+    child_elements = ibox_info.find_elements(By.XPATH,
+                                             "//div[@class='d-flex flex-wrap justify-content-center whie_block_border_100 ']")
+    # 總共有多少頁的info
+    max_page = driver.find_element(By.XPATH, "//nav[@aria-label='Page navigation ']").find_elements(By.TAG_NAME, "li")[
+        4].text
     max_page = int(max_page)
-    info_index = len(post_info)-1
-    for page in range(1,max_page+1):
-        driver.get(ibox_url+str(page))
+    info_index = len(post_info) - 1
+    for page in range(1, max_page + 1):
+        driver.get(ibox_url + str(page))
         time.sleep(1)
         ibox_info = driver.find_element(By.XPATH, "//div[@id='iboxStatusDiv']")
-            
-        child_elements = ibox_info.find_elements(By.XPATH,"//div[@class='d-flex flex-wrap justify-content-center whie_block_border_100 ']")
+
+        child_elements = ibox_info.find_elements(By.XPATH,
+                                                 "//div[@class='d-flex flex-wrap justify-content-center whie_block_border_100 ']")
         for c in child_elements:
-            if(c.text.split('\n')[3]==post_info[info_index][0]):
+            if (c.text.split('\n')[3] == post_info[info_index][0]):
                 print(c.find_elements(By.TAG_NAME, "span")[0].text)
                 print(c.text.split('\n'))
                 button = c.find_element(By.CLASS_NAME, "Js-Index-Print")
                 driver.execute_script("arguments[0].click();", button)
                 time.sleep(2)
-                info_index-=1
+                info_index -= 1
             else:
                 break
-            if(info_index<0):
+            if (info_index < 0):
                 break
-        if(info_index<0):
+        if (info_index < 0):
             break
     pdf_merger = PdfMerger()
     pdf_files = [f for f in os.listdir(pdf_path) if f.endswith('.pdf')]
@@ -320,7 +311,7 @@ def download_post_pdf():
     pdf_merger.write(output_path)
     pdf_merger.close()
     for tem_file_name in os.listdir(pdf_path):
-        if(tem_file_name=="post_info.pdf"):
+        if (tem_file_name == "post_info.pdf"):
             continue
         tem_file_path = os.path.join(pdf_path, tem_file_name)
         if os.path.isfile(tem_file_path):
@@ -330,12 +321,8 @@ def download_post_pdf():
     driver.quit()
 
 
-
 def re_run_post_web():
     threading.Thread(target=main_sys).start()
-
-
-
 
 
 # 建立主視窗
@@ -345,12 +332,15 @@ root.geometry("1000x500")
 # 啟動主視窗迴圈
 for t_r in R_datas:
     print(t_r)
-    if split_address(t_r[2])== None:
+    if split_address(t_r[2]) == None:
         flag = 0
 
-if flag==1:
+if flag == 1:
     # 登入
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=chrome_options
+    )
     driver.get("https://ezpost.post.gov.tw/Account/Login")
 
     Login_input = driver.find_element(By.ID, "inputEmail")
@@ -362,19 +352,19 @@ if flag==1:
     label.pack(pady=20)
 
     # 建立 "填入資料" 按鈕
-    start_button= tk.Button(root,text="填入資料",font=("Arial", 12), command=re_run_post_web)
+    start_button = tk.Button(root, text="填入資料", font=("Arial", 12), command=re_run_post_web)
     send_button = tk.Button(root, text="確認", font=("Arial", 12), command=send_post)
     start_button.pack(pady=10)
     root.mainloop()
 else:
-    t=""
+    t = ""
     for t_r in R_datas:
-       if split_address(t_r[2])== None:
+        if split_address(t_r[2]) == None:
             for r in t_r:
-                t+=r+" "
-            t+="\n"
+                t += r + " "
+            t += "\n"
     print("good")
-    t+="\n\n以上資料有誤，導致程式預處理失敗\n請確認地址無誤修正後再重啟程式"+"\n"
+    t += "\n\n以上資料有誤，導致程式預處理失敗\n請確認地址無誤修正後再重啟程式" + "\n"
     label = tk.Label(root, text=t, font=("Arial", 12))
     label.pack(pady=20)
     root.mainloop()
