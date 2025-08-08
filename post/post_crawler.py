@@ -20,7 +20,7 @@ from PyPDF2 import PdfMerger
 
 Account = "123"
 Password = "123"
-pdf_path = os.getcwd() + "\post_pdf"
+pdf_path = os.getcwd() + "/post_pdf"
 
 prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': pdf_path,
          "profile.default_content_setting_values.automatic_downloads": 1}
