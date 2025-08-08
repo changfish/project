@@ -18,9 +18,9 @@ from PyPDF2 import PdfMerger
 # from io import BytesIO
 # from fpdf import FPDF
 
-Account = "0905920491"
-Password = "Kk0905920491"
-pdf_path = os.getcwd() + r"\post_pdf"
+Account = "123"
+Password = "123"
+pdf_path = os.getcwd() + "\post_pdf"
 
 prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': pdf_path,
          "profile.default_content_setting_values.automatic_downloads": 1}
@@ -174,29 +174,26 @@ def post_data(S_data, R_data):
     # 強制點擊按鈕, 進入填寫物品資料
     submit_button = driver.find_element(By.ID, "next-button-step")
     driver.execute_script("arguments[0].click();", submit_button)
-    time.sleep(1.5)
+    time.sleep(2.5)
     ##### 物品資料
     # I_物品種類
     item_selector = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "categoryDropdown"))
     )
+    # time.sleep(0.5)
     select = Select(item_selector)
-    select.select_by_visible_text("食品")
-    # I_長寬高
+    select.select_by_value("2")  # 食品
+    # size_長寬高
     item_selector = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "sizeDropdown"))
     )
     select = Select(item_selector)
-    select.select_by_visible_text("小尺寸 14cm ×17cm x45cm")
-    # LEN_input = driver.find_element(By.ID, "PACK_DEPTH")
-    # LEN_input.send_keys("15")
-    # LEN_input = driver.find_element(By.ID, "PACK_WIDTH")
-    # LEN_input.send_keys("10")
-    # LEN_input = driver.find_element(By.ID, "PACK_HEIGHT")
-    # LEN_input.send_keys("10")
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, ".confirm-btn-alert"))
-    ).click()
+    select.select_by_value("00H")  # 小包裹
+
+    submit_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, ".button_border.confirm-btn-alert"))
+    )
+    submit_button.click()
 
     # I_contents
     text_input = driver.find_element(By.ID, "mailCommentTextarea")
