@@ -20,6 +20,13 @@ from PyPDF2 import PdfMerger
 
 Account = "123"
 Password = "123"
+with open("acc.txt", "r") as f:
+    for line in f:
+        if "Account" in line:
+            Account = line.split("=")[1].strip().strip('"')
+        elif "Password" in line:
+            Password = line.split("=")[1].strip().strip('"')
+
 pdf_path = os.getcwd() + "/post_pdf"
 
 prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': pdf_path,
